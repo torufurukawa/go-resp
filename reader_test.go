@@ -14,18 +14,13 @@ func TestRead(t *testing.T) {
 		{input: []byte("+OK\r\n"), obj: NewSimpleString("OK")},
 		{input: []byte("-ERR\r\n"), obj: NewError("ERR")},
 		{input: []byte(":123\r\n"), obj: NewInteger(123)},
-		{input: []byte("$4\r\nPING\r\n"),
-			obj: func() *BulkString {
-				b := BulkString([]byte("PING"))
-				return &b
-			}()},
+		{input: []byte("$4\r\nPING\r\n"), obj: NewBulkString([]byte("PING"))},
 		{input: []byte("*1\r\n$4\r\nPING\r\n"),
-			obj: func() *Array {
-				a := NewArray(1)
-				b := BulkString([]byte("PING"))
-				a.Objects[0] = &b
-				return a
-			}()},
+			obj: NewArray(NewBulkString([]byte("PING")))},
+		{input: []byte("*2\r\n$4\r\nLLEN\r\n$6\r\nmylist\r\n"),
+			obj: NewArray(
+				NewBulkString([]byte("LLEN")),
+				NewBulkString([]byte("mylist")))},
 	}
 
 	for _, f := range fixtures {
@@ -67,8 +62,8 @@ func TestParseLine(t *testing.T) {
 		{line: []byte("+OK"), obj: NewSimpleString("OK")},
 		{line: []byte("-ERR"), obj: NewError("ERR")},
 		{line: []byte(":123"), obj: NewInteger(123)},
-		{line: []byte("$4"), obj: NewBulkString(4)},
-		{line: []byte("*2"), obj: NewArray(2)},
+		{line: []byte("$4"), obj: NewBulkStringSize(4)},
+		{line: []byte("*2"), obj: NewArraySize(2)},
 	}
 
 	r := NewReader(new(bytes.Buffer))

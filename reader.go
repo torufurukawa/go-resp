@@ -32,16 +32,18 @@ func (r *Reader) ReadObject() (Object, error) {
 
 	switch o := obj.(type) {
 	case *BulkString:
-		if err := r.readBulkStringData(o); err != nil {
+		bytes := make([]byte, o.Length())
+		if err := r.read(bytes); err != nil {
 			return nil, err
 		}
+		o.SetBytes(bytes)
 	case *Array:
-		for i := 0; i < len(o.Objects); i++ {
+		for i := 0; i < o.Length(); i++ {
 			obj, err := r.ReadObject()
 			if err != nil {
 				return nil, err
 			}
-			o.Objects[i] = obj
+			o.SetObject(i, obj)
 		}
 	}
 
@@ -81,25 +83,25 @@ func (r *Reader) parseLine(line []byte) (Object, error) {
 		if err != nil {
 			return nil, err
 		}
-		return NewBulkString(v), nil
+		return NewBulkStringSize(v), nil
 	case arrayPrefix:
 		v, err := toInt(string(line[1:]))
 		if err != nil {
 			return nil, err
 		}
-		return NewArray(v), nil
+		return NewArraySize(v), nil
 	default:
 		return nil, fmt.Errorf("unknown prefix %#v", line[0])
 	}
 }
 
-func (r *Reader) readBulkStringData(b *BulkString) error {
+func (r *Reader) read(buf []byte) error {
 	// read data content
-	n, err := r.reader.Read([]byte(*b))
+	n, err := r.reader.Read(buf)
 	if err != nil {
 		return err
 	}
-	if n < len(*b) {
+	if n < len(buf) {
 		return fmt.Errorf("too short data")
 	}
 
