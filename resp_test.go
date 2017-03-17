@@ -20,3 +20,18 @@ func TestRead(t *testing.T) {
 		t.Errorf("obj is %#v, want OK", obj)
 	}
 }
+
+func TestReadError(t *testing.T) {
+	// given: reader is ready to read large data
+	data := append(make([]byte, bufferSize), []byte("\r\n")...)
+	buf := bytes.NewReader(data)
+	reader := NewReader(buf)
+
+	// when: call ReadObject()
+	_, err := reader.ReadObject()
+	// then: error
+	if err == nil {
+		t.Errorf("err is nil, want error")
+		return
+	}
+}

@@ -2,7 +2,12 @@ package resp
 
 import (
 	"bufio"
+	"fmt"
 	"io"
+)
+
+const (
+	bufferSize int = 32 * 1024
 )
 
 // Object represents a RESP data object
@@ -15,7 +20,7 @@ type Reader struct {
 
 // NewReader returns a new Reader
 func NewReader(r io.Reader) *Reader {
-	reader := Reader{reader: bufio.NewReader(r)}
+	reader := Reader{reader: bufio.NewReaderSize(r, bufferSize)}
 	return &reader
 }
 
@@ -25,9 +30,11 @@ func (r *Reader) ReadObject() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// TODO handle case of isPrefix == true
-	_ = isPrefix
+	if isPrefix {
+		// TODO define error
+		return "", fmt.Errorf("data is too large")
+	}
 
-	// TODO parse
+	// TODO parse explicitly
 	return string(line[1:]), nil
 }
