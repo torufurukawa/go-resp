@@ -35,6 +35,14 @@ func (r *Reader) ReadObject() (Object, error) {
 		if err := r.readBulkStringData(o); err != nil {
 			return nil, err
 		}
+	case *Array:
+		for i := 0; i < len(o.Objects); i++ {
+			obj, err := r.ReadObject()
+			if err != nil {
+				return nil, err
+			}
+			o.Objects[i] = obj
+		}
 	}
 
 	return obj, nil

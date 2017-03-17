@@ -72,11 +72,14 @@ func (b *BulkString) Dump() []byte {
 }
 
 // Array represents a RESP Array object
-type Array []Object
+type Array struct {
+	Objects []Object
+}
 
 // NewArray returns a new Array object whose length is size
 func NewArray(size int) *Array {
-	a := Array(make([]Object, size))
+	a := Array{}
+	a.Objects = make([]Object, size)
 	return &a
 }
 

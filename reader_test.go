@@ -19,6 +19,13 @@ func TestRead(t *testing.T) {
 				b := BulkString([]byte("PING"))
 				return &b
 			}()},
+		{input: []byte("*1\r\n$4\r\nPING\r\n"),
+			obj: func() *Array {
+				a := NewArray(1)
+				b := BulkString([]byte("PING"))
+				a.Objects[0] = &b
+				return a
+			}()},
 	}
 
 	for _, f := range fixtures {
