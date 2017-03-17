@@ -22,17 +22,17 @@ func TestRead(t *testing.T) {
 }
 
 func TestReadError(t *testing.T) {
-	// given: reader is ready to read large data
-	data := append(make([]byte, bufferSize), []byte("\r\n")...)
-	buf := bytes.NewReader(data)
-	reader := NewReader(buf)
+	inputs := [][]byte{
+		append(make([]byte, bufferSize), []byte("\r\n")...),
+		[]byte("\r\n"),
+	}
 
-	// when: call ReadObject()
-	_, err := reader.ReadObject()
-	// then: error
-	if err == nil {
-		t.Errorf("err is nil, want error")
-		return
+	for _, input := range inputs {
+		reader := NewReader(bytes.NewReader(input))
+		_, err := reader.ReadObject()
+		if err == nil {
+			t.Errorf("err is nil, want non-nil error")
+		}
 	}
 }
 

@@ -43,7 +43,6 @@ func (r *Reader) ReadObject() (string, error) {
 
 func parse(line []byte) (string, error) {
 	if len(line) == 0 {
-		// TODO test this case
 		return "", fmt.Errorf("prefix not found")
 	}
 
