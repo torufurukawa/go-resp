@@ -74,6 +74,12 @@ func (r *Reader) parseLine(line []byte) (Object, error) {
 			return nil, err
 		}
 		return NewBulkString(v), nil
+	case arrayPrefix:
+		v, err := toInt(string(line[1:]))
+		if err != nil {
+			return nil, err
+		}
+		return NewArray(v), nil
 	default:
 		return nil, fmt.Errorf("unknown prefix %#v", line[0])
 	}

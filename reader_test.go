@@ -56,12 +56,12 @@ func TestParseLine(t *testing.T) {
 	fixture := []struct {
 		line []byte
 		obj  interface{}
-		eq   func(a interface{}, b interface{}) bool
 	}{
-		{line: []byte("+OK"), obj: NewSimpleString("OK"), eq: reflect.DeepEqual},
-		{line: []byte("-ERR"), obj: NewError("ERR"), eq: reflect.DeepEqual},
-		{line: []byte(":123"), obj: NewInteger(123), eq: reflect.DeepEqual},
-		{line: []byte("$4"), obj: NewBulkString(4), eq: reflect.DeepEqual},
+		{line: []byte("+OK"), obj: NewSimpleString("OK")},
+		{line: []byte("-ERR"), obj: NewError("ERR")},
+		{line: []byte(":123"), obj: NewInteger(123)},
+		{line: []byte("$4"), obj: NewBulkString(4)},
+		{line: []byte("*2"), obj: NewArray(2)},
 	}
 
 	r := NewReader(new(bytes.Buffer))
@@ -70,7 +70,7 @@ func TestParseLine(t *testing.T) {
 		if err != nil {
 			t.Errorf("err is %#v, want nil", err)
 		}
-		if !f.eq(result, f.obj) {
+		if !reflect.DeepEqual(result, f.obj) {
 			t.Errorf("result is %#v, want %#v", result, f.obj)
 		}
 	}

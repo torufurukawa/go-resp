@@ -6,6 +6,7 @@ const (
 	errorPrefix        = '-'
 	integerPrefix      = ':'
 	bulkStringPrefix   = '$'
+	arrayPrefix        = '*'
 )
 
 var objectSuffix = []byte("\r\n")

@@ -70,3 +70,17 @@ func (b *BulkString) Dump() []byte {
 	data := []byte(*b)
 	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(data), string(data)))
 }
+
+// Array represents a RESP Array object
+type Array []Object
+
+// NewArray returns a new Array object whose length is size
+func NewArray(size int) *Array {
+	a := Array(make([]Object, size))
+	return &a
+}
+
+// Dump returns raw bytes representation
+func (a *Array) Dump() []byte {
+	return nil
+}
