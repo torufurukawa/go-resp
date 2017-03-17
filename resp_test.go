@@ -98,10 +98,10 @@ func TestParseLine(t *testing.T) {
 	fixture := []struct {
 		line []byte
 		obj  Object
-		eq   func(a Object, b Object) bool
+		eq   func(a interface{}, b interface{}) bool
 	}{
-		{line: []byte("+OK"), obj: NewSimpleString("OK"), eq: eqSimpleStrings},
-		{line: []byte("-ERR"), obj: NewError("ERR"), eq: eqErrors},
+		{line: []byte("+OK"), obj: NewSimpleString("OK"), eq: reflect.DeepEqual},
+		{line: []byte("-ERR"), obj: NewError("ERR"), eq: reflect.DeepEqual},
 	}
 
 	for _, f := range fixture {
@@ -113,12 +113,4 @@ func TestParseLine(t *testing.T) {
 			t.Errorf("result is %#v, want %#v", result, f.obj)
 		}
 	}
-}
-
-func eqSimpleStrings(a Object, b Object) bool {
-	return string(*(a.(*SimpleString))) == string(*(b.(*SimpleString)))
-}
-
-func eqErrors(a Object, b Object) bool {
-	return string(*(a.(*Error))) == string(*(b.(*Error)))
 }
