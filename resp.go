@@ -63,3 +63,26 @@ func parseLine(line []byte) (string, error) {
 		return "", fmt.Errorf("unknown prefix %#v", line[0])
 	}
 }
+
+//
+// Writer
+//
+
+// Writer implements a RESP object writer for an io.Writer
+type Writer struct {
+	writer *io.Writer
+}
+
+// NewWriter returns a new Writer
+func NewWriter(w io.Writer) *Writer {
+	return &Writer{writer: &w}
+}
+
+// WriteObject writes an object
+func (w *Writer) WriteObject(obj string) error {
+	rawData := []byte{byte(simpleStringPrefix)}
+	rawData = append(rawData, []byte(obj)...)
+	rawData = append(rawData, []byte("\r\n")...)
+	_, err := (*w.writer).Write(rawData)
+	return err
+}

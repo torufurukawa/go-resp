@@ -2,6 +2,19 @@ package resp
 
 import "testing"
 import "bytes"
+import "reflect"
+
+func TestWrite(t *testing.T) {
+	buf := new(bytes.Buffer)
+	writer := NewWriter(buf)
+	err := writer.WriteObject("OK")
+	if err != nil {
+		t.Errorf("err is %#v, want nil", err)
+	}
+	if !reflect.DeepEqual(buf.Bytes(), []byte("+OK\r\n")) {
+		t.Errorf("buf is %#v, want +OK\\r\\n", buf)
+	}
+}
 
 func TestRead(t *testing.T) {
 	// given: reader is ready to read "+OK\r\n"
