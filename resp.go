@@ -9,6 +9,7 @@ import (
 const (
 	bufferSize         = 32 * 1024
 	simpleStringPrefix = '+'
+	errorPrefix        = '-'
 )
 
 var objectSuffix = []byte("\r\n")
@@ -35,6 +36,24 @@ func NewSimpleString(content string) *SimpleString {
 func (s *SimpleString) Dump() []byte {
 	raw := []byte{byte(simpleStringPrefix)}
 	raw = append(raw, []byte(*s)...)
+	raw = append(raw, objectSuffix...)
+	return raw
+}
+
+// Error represents a RESP Error object
+// Note: this is not Go's error.
+type Error string
+
+// NewError returns a new Error object with content
+func NewError(content string) *Error {
+	e := Error(content)
+	return &e
+}
+
+// Dump returns raw bytes representation
+func (e *Error) Dump() []byte {
+	raw := []byte{byte(errorPrefix)}
+	raw = append(raw, []byte(*e)...)
 	raw = append(raw, objectSuffix...)
 	return raw
 }
@@ -84,6 +103,8 @@ func parseLine(line []byte) (Object, error) {
 	switch line[0] {
 	case simpleStringPrefix:
 		return NewSimpleString(string(line[1:])), nil
+	case errorPrefix:
+		return NewError(string(line[1:])), nil
 	default:
 		return nil, fmt.Errorf("unknown prefix %#v", line[0])
 	}
