@@ -13,6 +13,10 @@ const (
 // Object represents a RESP data object
 type Object interface{}
 
+//
+// Reader
+//
+
 // Reader implements a RESP object reader for an io.Reader
 type Reader struct {
 	reader *bufio.Reader
@@ -31,10 +35,22 @@ func (r *Reader) ReadObject() (string, error) {
 		return "", err
 	}
 	if isPrefix {
-		// TODO define error
 		return "", fmt.Errorf("data is too large")
 	}
 
-	// TODO parse explicitly
-	return string(line[1:]), nil
+	return parse(line)
+}
+
+func parse(line []byte) (string, error) {
+	if len(line) == 0 {
+		// TODO test this case
+		return "", fmt.Errorf("prefix not found")
+	}
+
+	switch line[0] {
+	case '+':
+		return string(line[1:]), nil
+	default:
+		return "", fmt.Errorf("unknown prefix %#v", line[0])
+	}
 }
