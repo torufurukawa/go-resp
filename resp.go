@@ -4,12 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strconv"
 )
 
 const (
 	bufferSize         = 32 * 1024
 	simpleStringPrefix = '+'
 	errorPrefix        = '-'
+	integerPrefix      = ':'
 )
 
 var objectSuffix = []byte("\r\n")
@@ -56,6 +58,20 @@ func (e *Error) Dump() []byte {
 	raw = append(raw, []byte(*e)...)
 	raw = append(raw, objectSuffix...)
 	return raw
+}
+
+// Integer represents a RESP Integer object
+type Integer int
+
+// NewInteger returns a new Integer object with v
+func NewInteger(v int) *Integer {
+	i := Integer(v)
+	return &i
+}
+
+// Dump returns raw bytes representation
+func (i *Integer) Dump() []byte {
+	return []byte(fmt.Sprintf(":%d\r\n", int(*i)))
 }
 
 //
@@ -105,6 +121,12 @@ func parseLine(line []byte) (Object, error) {
 		return NewSimpleString(string(line[1:])), nil
 	case errorPrefix:
 		return NewError(string(line[1:])), nil
+	case integerPrefix:
+		v, err := strconv.Atoi(string(line[1:]))
+		if err != nil {
+			return nil, fmt.Errorf("invalid integer format %#v", line[1:])
+		}
+		return NewInteger(v), nil
 	default:
 		return nil, fmt.Errorf("unknown prefix %#v", line[0])
 	}
