@@ -11,8 +11,33 @@ const (
 	simpleStringPrefix = '+'
 )
 
-// Object represents a RESP data object
-type Object interface{}
+var objectSuffix = []byte("\r\n")
+
+//
+// RESP Objects
+//
+
+// Object represents a RESP data object reference
+type Object interface {
+	Dump() []byte
+}
+
+// SimpleString represents a RESP Simple String object
+type SimpleString string
+
+// NewSimpleString returns a new SimpleString object with content
+func NewSimpleString(content string) *SimpleString {
+	s := SimpleString(content)
+	return &s
+}
+
+// Dump returns raw bytes representation
+func (s *SimpleString) Dump() []byte {
+	raw := []byte{byte(simpleStringPrefix)}
+	raw = append(raw, []byte(*s)...)
+	raw = append(raw, objectSuffix...)
+	return raw
+}
 
 //
 // Reader
@@ -30,10 +55,10 @@ func NewReader(r io.Reader) *Reader {
 }
 
 // ReadObject reads next RESP object
-func (r *Reader) ReadObject() (string, error) {
+func (r *Reader) ReadObject() (Object, error) {
 	line, err := r.readLine()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	return parseLine(line)
@@ -51,16 +76,16 @@ func (r *Reader) readLine() ([]byte, error) {
 	return line, nil
 }
 
-func parseLine(line []byte) (string, error) {
+func parseLine(line []byte) (Object, error) {
 	if len(line) == 0 {
-		return "", fmt.Errorf("prefix not found")
+		return nil, fmt.Errorf("prefix not found")
 	}
 
 	switch line[0] {
 	case simpleStringPrefix:
-		return string(line[1:]), nil
+		return NewSimpleString(string(line[1:])), nil
 	default:
-		return "", fmt.Errorf("unknown prefix %#v", line[0])
+		return nil, fmt.Errorf("unknown prefix %#v", line[0])
 	}
 }
 
@@ -79,10 +104,7 @@ func NewWriter(w io.Writer) *Writer {
 }
 
 // WriteObject writes an object
-func (w *Writer) WriteObject(obj string) error {
-	rawData := []byte{byte(simpleStringPrefix)}
-	rawData = append(rawData, []byte(obj)...)
-	rawData = append(rawData, []byte("\r\n")...)
-	_, err := (*w.writer).Write(rawData)
+func (w *Writer) WriteObject(obj Object) error {
+	_, err := (*w.writer).Write(obj.Dump())
 	return err
 }

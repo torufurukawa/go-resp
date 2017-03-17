@@ -4,15 +4,32 @@ import "testing"
 import "bytes"
 import "reflect"
 
+func TestSimpleString(t *testing.T) {
+	content := "OK"
+	s := NewSimpleString(content)
+
+	if string(*s) != content {
+		t.Errorf("s is %#v, want %#v", s, content)
+	}
+
+	dump := s.Dump()
+	expectedDump := []byte("+OK\r\n")
+	if !reflect.DeepEqual(dump, expectedDump) {
+		t.Errorf("s.Dump() is \n%#v, want \n%#v", dump, expectedDump)
+	}
+}
+
 func TestWrite(t *testing.T) {
 	buf := new(bytes.Buffer)
 	writer := NewWriter(buf)
-	err := writer.WriteObject("OK")
+	err := writer.WriteObject(NewSimpleString("OK"))
 	if err != nil {
 		t.Errorf("err is %#v, want nil", err)
 	}
-	if !reflect.DeepEqual(buf.Bytes(), []byte("+OK\r\n")) {
-		t.Errorf("buf is %#v, want +OK\\r\\n", buf)
+
+	expected := []byte("+OK\r\n")
+	if !reflect.DeepEqual(buf.Bytes(), expected) {
+		t.Errorf("buf is %#v, want %#v", buf, expected)
 	}
 }
 
@@ -29,7 +46,7 @@ func TestRead(t *testing.T) {
 	}
 
 	// then: "OK" is returned
-	if obj != "OK" {
+	if *(obj.(*SimpleString)) != SimpleString("OK") {
 		t.Errorf("obj is %#v, want OK", obj)
 	}
 }
@@ -55,7 +72,7 @@ func TestParseLine(t *testing.T) {
 	if err != nil {
 		t.Errorf("err is %#v, want nil", err)
 	}
-	if result != "OK" {
+	if *(result.(*SimpleString)) != SimpleString("OK") {
 		t.Errorf("result is %#v, want OK", result)
 	}
 }
