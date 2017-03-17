@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	bufferSize int = 32 * 1024
+	bufferSize         = 32 * 1024
+	simpleStringPrefix = '+'
 )
 
 // Object represents a RESP data object
@@ -30,24 +31,33 @@ func NewReader(r io.Reader) *Reader {
 
 // ReadObject reads next RESP object
 func (r *Reader) ReadObject() (string, error) {
-	line, isPrefix, err := r.reader.ReadLine()
+	line, err := r.readLine()
 	if err != nil {
 		return "", err
 	}
-	if isPrefix {
-		return "", fmt.Errorf("data is too large")
-	}
 
-	return parse(line)
+	return parseLine(line)
 }
 
-func parse(line []byte) (string, error) {
+func (r *Reader) readLine() ([]byte, error) {
+	line, isPrefix, err := r.reader.ReadLine()
+	if err != nil {
+		return nil, err
+	}
+	if isPrefix {
+		return nil, fmt.Errorf("data is too large")
+	}
+
+	return line, nil
+}
+
+func parseLine(line []byte) (string, error) {
 	if len(line) == 0 {
 		return "", fmt.Errorf("prefix not found")
 	}
 
 	switch line[0] {
-	case '+':
+	case simpleStringPrefix:
 		return string(line[1:]), nil
 	default:
 		return "", fmt.Errorf("unknown prefix %#v", line[0])

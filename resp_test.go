@@ -36,9 +36,9 @@ func TestReadError(t *testing.T) {
 	}
 }
 
-func TestParse(t *testing.T) {
+func TestParseLine(t *testing.T) {
 	line := []byte("+OK")
-	result, err := parse(line)
+	result, err := parseLine(line)
 	if err != nil {
 		t.Errorf("err is %#v, want nil", err)
 	}
