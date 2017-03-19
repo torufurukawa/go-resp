@@ -15,6 +15,7 @@ func TestRead(t *testing.T) {
 		{input: []byte("-ERR\r\n"), obj: NewError("ERR")},
 		{input: []byte(":123\r\n"), obj: NewInteger(123)},
 		{input: []byte("$4\r\nPING\r\n"), obj: NewBulkString([]byte("PING"))},
+		{input: []byte("$0\r\n\r\n"), obj: NewBulkString([]byte(""))},
 		{input: []byte("*1\r\n$4\r\nPING\r\n"),
 			obj: NewArray(NewBulkString([]byte("PING")))},
 		{input: []byte("*2\r\n$4\r\nLLEN\r\n$6\r\nmylist\r\n"),

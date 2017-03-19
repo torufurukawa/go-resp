@@ -15,6 +15,7 @@ func TestWrite(t *testing.T) {
 		{obj: NewError("ERR foo"), expected: []byte("-ERR foo\r\n")},
 		{obj: NewInteger(123), expected: []byte(":123\r\n")},
 		{obj: NewBulkString([]byte("PING")), expected: []byte("$4\r\nPING\r\n")},
+		{obj: NewBulkString([]byte("")), expected: []byte("$0\r\n\r\n")},
 		{obj: NewArray(
 			NewBulkString([]byte("LLEN")),
 			NewBulkString([]byte("mylist"))),
