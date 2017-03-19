@@ -32,6 +32,11 @@ func (r *Reader) ReadObject() (Object, error) {
 
 	switch o := obj.(type) {
 	case *BulkString:
+		// stop reading further if object is null
+		if o.Bytes() == nil {
+			break
+		}
+
 		bytes := make([]byte, o.Length())
 		if err := r.read(bytes); err != nil {
 			return nil, err

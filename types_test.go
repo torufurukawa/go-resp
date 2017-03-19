@@ -35,3 +35,19 @@ func TestError(t *testing.T) {
 		t.Errorf("s.Dump() is \n%#v, want \n%#v", dump, expectedDump)
 	}
 }
+
+func TestNullBulkString(t *testing.T) {
+	s := NewBulkString(nil)
+	fixtures := []struct {
+		result []byte
+		desc   string
+	}{
+		{result: s.bytes, desc: "s.bytes"},
+		{result: s.Bytes(), desc: "s.Bytes()"},
+	}
+	for _, f := range fixtures {
+		if f.result != nil {
+			t.Errorf("%s is %#v, want nil", f.desc, f.result)
+		}
+	}
+}

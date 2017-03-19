@@ -70,12 +70,18 @@ func NewBulkString(dat []byte) *BulkString {
 // The length is the bytes of internal binary data.
 func NewBulkStringSize(size int) *BulkString {
 	b := new(BulkString)
-	b.bytes = make([]byte, size)
+	b.bytes = nil
+	if size > -1 {
+		b.bytes = make([]byte, size)
+	}
 	return b
 }
 
 // Dump returns raw bytes representation
 func (b *BulkString) Dump() []byte {
+	if b.bytes == nil {
+		return []byte("$-1\r\n")
+	}
 	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(b.bytes), string(b.bytes)))
 }
 
