@@ -8,52 +8,73 @@ type Object interface {
 }
 
 // SimpleString represents a RESP Simple String object
-type SimpleString string
+type SimpleString struct {
+	content string
+}
 
 // NewSimpleString returns a new SimpleString object with content
 func NewSimpleString(content string) *SimpleString {
-	s := SimpleString(content)
+	s := SimpleString{content: content}
 	return &s
+}
+
+// String returns the content string
+func (s *SimpleString) String() string {
+	return s.content
 }
 
 // Dump returns raw bytes representation
 func (s *SimpleString) Dump() []byte {
 	raw := []byte{byte(simpleStringPrefix)}
-	raw = append(raw, []byte(*s)...)
+	raw = append(raw, []byte(s.String())...)
 	raw = append(raw, objectSuffix...)
 	return raw
 }
 
 // Error represents a RESP Error object
 // Note: this is not Go's error.
-type Error string
+type Error struct {
+	content string
+}
 
 // NewError returns a new Error object with content
 func NewError(content string) *Error {
-	e := Error(content)
+	e := Error{content: content}
 	return &e
+}
+
+// String returns the content string
+func (e *Error) String() string {
+	return e.content
 }
 
 // Dump returns raw bytes representation
 func (e *Error) Dump() []byte {
 	raw := []byte{byte(errorPrefix)}
-	raw = append(raw, []byte(*e)...)
+	raw = append(raw, []byte(e.String())...)
 	raw = append(raw, objectSuffix...)
 	return raw
 }
 
 // Integer represents a RESP Integer object
-type Integer int
+type Integer struct {
+	content int
+}
 
 // NewInteger returns a new Integer object with v
 func NewInteger(v int) *Integer {
-	i := Integer(v)
+	i := Integer{content: v}
 	return &i
+}
+
+// Int returns content as int
+func (i *Integer) Int() int {
+	return i.content
 }
 
 // Dump returns raw bytes representation
 func (i *Integer) Dump() []byte {
-	return []byte(fmt.Sprintf(":%d\r\n", int(*i)))
+	return []byte(fmt.Sprintf(":%d\r\n", i.Int()))
 }
 
 // BulkString represents a RESP Bulk String object
@@ -75,6 +96,11 @@ func NewBulkStringSize(size int) *BulkString {
 		b.bytes = make([]byte, size)
 	}
 	return b
+}
+
+// String returns the content string
+func (b *BulkString) String() string {
+	return string(b.bytes)
 }
 
 // Dump returns raw bytes representation
